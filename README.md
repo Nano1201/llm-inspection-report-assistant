@@ -45,7 +45,7 @@ Example input:
 {
   "note": "Logo marking appears slightly shifted. Package surface has minor scratches."
 }
-
+```
 Example output:
 
 ```json
