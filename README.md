@@ -45,3 +45,14 @@ Example input:
 {
   "note": "Logo marking appears slightly shifted. Package surface has minor scratches."
 }
+
+Example output:
+
+```json
+{
+  "issue_type": "visual_defect",
+  "severity": "medium",
+  "affected_component": "logo_marking",
+  "recommended_action": "manual_review",
+  "confidence": 0.82
+}
