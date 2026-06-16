@@ -1,12 +1,22 @@
 import json
 
-from openai import OpenAI
+from json import JSONDecodeError
+
+from fastapi import HTTPException
+from openai import OpenAI, OpenAIError
+from pydantic import ValidationError
 
 from app.config import settings
-from app.schemas import InspectionExtractionResponse
+from app.schemas import InspectionExtractionResponse, AskResponse
 
+def get_openai_client() -> OpenAI:
+    if not settings.openai_api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="OpenAI API key is not configured.",
+        )
 
-client = OpenAI(api_key=settings.openai_api_key) # initialize the OpenAI client
+    return OpenAI(api_key=settings.openai_api_key)
 
 def extract_inspection_note_with_openai(note: str) -> InspectionExtractionResponse:     # define the function to extract the inspection note
     prompt = f"""
@@ -28,13 +38,63 @@ Do not include explanation.
 Do not include any other text or comments.
 """
 
-    response = client.responses.create(   # create the response from the OpenAI client
-        model=settings.openai_model,
-        input=prompt,   # the prompt to the OpenAI client
-    )
+    client = get_openai_client()
 
-    raw_text = response.output_text # get the raw text from the response
+    try:
+        response = client.responses.create(
+            model=settings.openai_model,
+            input=prompt,
+        )
 
-    parsed = json.loads(raw_text) # parse the response into a Python dictionary
+        raw_text = response.output_text.strip()
+        parsed = json.loads(raw_text)
 
-    return InspectionExtractionResponse(**parsed) # return the response as a Pydantic model
+        return InspectionExtractionResponse(**parsed)
+
+    except JSONDecodeError:
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to parse LLM response as valid JSON.",
+        )
+
+    except ValidationError:
+        raise HTTPException(
+            status_code=502,
+            detail="LLM response did not match the expected extraction schema.",
+        )
+
+    except OpenAIError:
+        raise HTTPException(
+            status_code=502,
+            detail="OpenAI API request failed.",
+        )
+
+
+def ask_openai(question: str) -> AskResponse:
+    prompt = f"""
+You are an AI assistant for quality inspection and inspection report analysis.
+Answer the user's question clearly and concisely.
+User question:
+{question}
+
+Guidelines:
+- Focus on quality inspection, visual defects, reporting, and review workflow.
+- If the question is outside your scope, answer briefly and say it is outside the inspection assistant's scope.
+- Do not make up specific lot data or inspection results.
+"""
+
+    client = get_openai_client()
+
+    try:
+        response = client.responses.create(
+            model=settings.openai_model,
+            input=prompt,
+        )
+
+        return AskResponse(answer=response.output_text.strip())
+
+    except OpenAIError:
+        raise HTTPException(
+            status_code=502,
+            detail="OpenAI API request failed.",
+        )

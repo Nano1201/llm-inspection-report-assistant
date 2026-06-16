@@ -3,9 +3,16 @@
 # most of the logic 
 
 from fastapi import FastAPI
-from app.config import settings
-from app.schemas import InspectionNoteRequest, InspectionExtractionResponse
-from app.services.llm.openai_client import extract_inspection_note_with_openai
+from app.schemas import (
+    InspectionNoteRequest,    # input for extract
+    InspectionExtractionResponse,    # output for extract
+    AskRequest,    # input for ask
+    AskResponse,    # output for ask
+)
+from app.services.llm.openai_client import (
+    extract_inspection_note_with_openai,    # function to extract the inspection note
+    ask_openai,    # function to ask a question
+)
 
 app = FastAPI(
     title="LLM Inspection Report Assistant",
@@ -37,9 +44,6 @@ def health_check():
 def extract_inspection_note(request: InspectionNoteRequest):
     return extract_inspection_note_with_openai(request.note)   # call the function to extract the inspection note by calling openai client
 
-@app.get("/config-test")
-def config_test():
-    return {
-        "openai_model": settings.openai_model,
-        "has_api_key": settings.openai_api_key is not None,
-    }
+@app.post("/ask", response_model=AskResponse)
+def ask_question(request: AskRequest):
+    return ask_openai(request.question)

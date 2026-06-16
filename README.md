@@ -1,12 +1,13 @@
 # LLM Inspection Report Assistant
 
-This is a simple FastAPI backend for turning inspection notes into structured JSON.
+This is a simple FastAPI backend for inspection tasks.
+It uses OpenAI to read notes and answer questions.
 
 ## What it can do now
 
-- `GET /health` : check if the server is running
-- `GET /config-test` : check if your environment settings are loaded
-- `POST /extract` : extract issue info from an inspection note (uses OpenAI)
+- Health check
+- Extract structured inspection information
+- Ask an inspection-related question
 
 ## Planned (not finished yet)
 
@@ -26,19 +27,29 @@ This is a simple FastAPI backend for turning inspection notes into structured JS
 
 ## API
 
-### `GET /health`
+### Health Check
 
-Returns:
+**Endpoint:** `GET /health`
 
-- `{ "status": "ok" }`
+Use this endpoint to make sure the server is running.
 
-### `GET /config-test`
+Example response:
 
-Returns whether `OPENAI_API_KEY` is set.
+```json
+{
+  "status": "ok",
+  "service": "llm-inspection-report-assistant",
+  "version": "0.1.0"
+}
+```
 
-### `POST /extract`
+### Extract Structured Inspection Information
 
-Request body:
+**Endpoint:** `POST /extract`
+
+Send one inspection note. The API returns structured fields.
+
+Request example:
 
 ```json
 {
@@ -46,7 +57,7 @@ Request body:
 }
 ```
 
-Response body (example):
+Response example:
 
 ```json
 {
@@ -55,6 +66,28 @@ Response body (example):
   "affected_component": "logo_marking",
   "recommended_action": "manual_review",
   "confidence": 0.82
+}
+```
+
+### Ask an Inspection-Related Question
+
+**Endpoint:** `POST /ask`
+
+Send a question about inspection workflow, defects, or report meaning.
+
+Request example:
+
+```json
+{
+  "question": "What does manual review mean in quality inspection?"
+}
+```
+
+Response example:
+
+```json
+{
+  "answer": "Manual review means a person should check the item before approval."
 }
 ```
 
