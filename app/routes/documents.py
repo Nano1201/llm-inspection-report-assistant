@@ -19,7 +19,7 @@ async def upload_document(file: UploadFile = File(...)):
     """
     Upload a PDF document, extract text, and split it into chunks.
     """
-    if not file.filename.lower().endswith(".pdf"):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
     document_id = str(uuid4())

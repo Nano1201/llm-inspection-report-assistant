@@ -4,6 +4,7 @@
 
 from fastapi import FastAPI
 from app.routes.documents import router as documents_router
+from app.routes.rag import router as rag_router
 from app.schemas import (
     InspectionNoteRequest,    # input for extract
     InspectionExtractionResponse,    # output for extract
@@ -21,8 +22,9 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# include the router for the documents endpoint, so we can use the endpoints defined in the documents router
+# include the router for the documents and rag endpoints, so we can use the endpoints defined in the documents and rag routers
 app.include_router(documents_router)
+app.include_router(rag_router)
 
 @app.get("/health")
 def health_check():
