@@ -220,3 +220,10 @@ __marimo__/
 
 # Cursor
 .cursorignore
+
+# Local runtime storage (keep folder structure only)
+app/storage/documents/*
+app/storage/chroma/*
+
+!app/storage/documents/.gitkeep
+!app/storage/chroma/.gitkeep

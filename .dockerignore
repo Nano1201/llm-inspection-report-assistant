@@ -12,3 +12,10 @@ env.bat
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Runtime storage (do not bake local uploads/DB into image)
+app/storage/documents/*
+app/storage/chroma/*
+
+!app/storage/documents/.gitkeep
+!app/storage/chroma/.gitkeep
